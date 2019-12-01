@@ -1,0 +1,110 @@
+#debug {
+  margin-top: 50px;
+  margin-left: 700px;
+  width: 200px;
+  background: beige;
+  font-size: 9pt;
+  opacity: 0.5;
+  border: 1px solid gray;
+  padding: 10px;
+}
+
+#viewport {
+  float: left;
+  overflow: auto;
+  width: 600px;
+  height: 500px;
+  padding: 0 10px;
+}
+
+#content {
+  position: relative;
+  overflow: hidden;
+}
+
+.main {
+  padding: 5%;
+}
+
+.container {
+  width: 460px;
+}
+
+.card {
+  background: #f1f1f1;
+  height: calc(100% - 10px);
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30%;
+}
+
+.caption {
+  margin: 5% 0 0 5%;
+  width: 240px;
+}
+
+.icon {
+  height: 13px;
+}
+
+img {
+  height: 90%;
+  max-height: 200px;
+  margin-top: 10px;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+.label-success {
+  background-color: #5cb85c;
+}
+
+.label {
+  display: flex;
+  width: 43px;
+  padding: 5px;
+  font-size: 65%;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  border-radius: .25em;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.radio {
+  margin-left: 700px;
+}
+
+/* Scroll ----------  */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
