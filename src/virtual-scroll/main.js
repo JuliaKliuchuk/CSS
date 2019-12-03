@@ -1,21 +1,18 @@
 var vpHeight = 0; // viewport height
 var contentHeight = 0; // real scrollable height
 var scrollTop = 0;
-var scrollBottom = 0;
-var methodType = 0;
 var containerInterval = [0, 0];
 var containerSelected = [];
-var viewport, content, loadType;
+var viewport, content;
 
 /**
  * Init JQuery script
  * @constructor
- * @return {[type]} [description]
+ * @return {volid}
  */
 $(function () {
   viewport = $("#viewport");
   content = $("#content");
-  loadType = $("input[type=radio]");
 
   // height of viewport
   vpHeight = Math.floor(viewport.css("height").replace('px', ''));
@@ -26,75 +23,28 @@ $(function () {
   // Sum height of elements
   contentHeight = 5200;
 
-  loadType.change(selectMetodLoadContent);
-  loadType.trigger("change");
-
+  selectMetodLoadContent();
 });
 
 /**
  * Select Metod Load Content
- * @this $
  * @return {volid}
  */
 function selectMetodLoadContent() {
-  if (this.checked) {
-    methodType = this.value;
 
-    // kill all events
-    viewport.unbind("mouseup");
-    viewport.unbind("scroll");
+  viewport.mouseup(function () {
 
-    // First method
-    if (methodType == 0) {
+    scrollTop = viewport.scrollTop();
 
-      viewport.mouseup(function () {
-        // load first viewport
+    // initializing interval for search containers
+    start = scrollTop;
+    stop = vpHeight + scrollTop;
 
-        scrollTop = viewport.scrollTop();
-        // initializing interval for search containers
-        start = scrollTop;
-        stop = vpHeight + scrollTop;
+    getContainers(start, stop);
+  });
 
-        getContainers_(start, stop);
-      });
-      // run now
-      viewport.trigger("mouseup");
-    }
-
-    // Second method
-
-    // Loading the current viewport after positioning it
-    if (methodType == 1) {
-      viewport.mouseup(function () {
-        scrollTop = viewport.scrollTop();
-        // initializing interval for search containers
-        start = scrollTop;
-        stop = vpHeight + scrollTop;
-
-        getContainers(start, stop);
-      });
-      // run now
-      viewport.trigger("mouseup");
-
-      // Third method
-
-      // Anticipating viewport loading with a downward shift of the loading area by 1 viewport
-    } else if (methodType == 2) {
-
-      viewport.scroll(function () {
-        // Load first viewport
-        getContainers(0, vpHeight);
-        scrollTop = viewport.scrollTop();
-        // initializing interval for search containers
-        start = scrollTop + vpHeight;
-        stop = vpHeight + start;
-
-        getContainers(start, stop);
-      });
-      // run now
-      viewport.trigger("scroll");
-    }
-  }
+  // run now
+  viewport.trigger("mouseup");
   logDebugInfo();
 }
 
@@ -107,31 +57,6 @@ function selectMetodLoadContent() {
 function getContainers(start, stop) {
   var scrollH = 0;
   var result = [];
-  containerInterval = [start, stop];
-  $(".container").toArray().find(function (elem) {
-    var elemH = Number($(elem).css("height").replace('px', ''));
-    // console.log(elemH);
-    scrollH += elemH;
-    // console.log(scrollH ,'>=', start)
-    // console.log(scrollH ,'>=', stop)
-    // console.log(elem.id);
-    if (scrollH >= start) {
-      result.push(elem);
-      if (scrollH >= stop) {
-        checkContainer(result);
-        return true;
-      }
-    }
-  });
-  logDebugInfo();
-}
-
-// Copi
-//
-function getContainers_(start, stop) {
-  console.log('getContainers_:', start, stop);
-  var scrollH = 0;
-  var result = [];
   var countBlock = 1;
   containerInterval = [start, stop];
 
@@ -141,10 +66,8 @@ function getContainers_(start, stop) {
     countBlock++;
   });
 
-  console.log('countBlock:', countBlock, 'scrollH:', scrollH, 'scrollH < stop = ', scrollH, stop);
   if (scrollH < stop) {
-    console.log('loadFile_');
-    loadFile_('page-' + countBlock, $("#content"), getContainers_.bind(null, start, stop));
+    loadFile('page-' + countBlock, $("#content"), getContainers.bind(null, start, stop));
   }
 
   logDebugInfo();
@@ -169,33 +92,15 @@ function checkContainer(container) {
   logDebugInfo();
 }
 
+
 /**
  * Load file to container
- * @param  {String} file      name of file
- * @param  {Object} container element container
+ * @param  {String}   file      name of file
+ * @param  {Object}   container container element container
+ * @param  {Function} cb
  * @return {void}
  */
-function loadFile(file, container) {
-  if (!file || !container) return;
-  $.ajax({
-    type: "get",
-    url: 'pages/' + file + '.html',
-    dataType: "html",
-    success: function (data) {
-      /* handle data here */
-      $(container).html(data);
-      $(container).attr("status", '1');
-    },
-    error: function (xhr, status) {
-      /* handle error here */
-      $(container).html(status);
-    }
-  });
-}
-
-
-// Copi
-function loadFile_(file, container, cb) {
+function loadFile(file, container, cb) {
   if (!file || !container) return;
   const idBlock = '#' + file;
 
@@ -203,7 +108,6 @@ function loadFile_(file, container, cb) {
 
   $(container).append('<div id="' + file + '" status="0"></div>');
   const newContainer = $(idBlock);
-  console.log('newContainer:', newContainer);
   $.ajax({
     type: "get",
     url: 'pages/' + file + '.html',
@@ -212,15 +116,15 @@ function loadFile_(file, container, cb) {
       /* handle data here */
       $(newContainer).append(data);
       $(newContainer).attr("status", '1');
+
       cb();
-      console.log(file);
     },
     error: function (xhr, status) {
       /* handle error here */
-      console.log(status);
     }
   });
 }
+
 
 /**
  * Log Debug information
@@ -232,18 +136,10 @@ function logDebugInfo() {
   dbg.append("vpHeight = " + vpHeight + "<br>");
   dbg.append("contentHeight = " + Math.round(contentHeight) + "<br>");
   dbg.append("containerCount = " + Math.round(containerCount) + "<br>");
-  dbg.append("MethodType = " + methodType + "<br>");
   dbg.append("<hr>");
   dbg.append("scrollTop = " + Math.round(scrollTop) + "<br>");
 
   dbg.append("Container Interval:" + "<br>");
   dbg.append("  - start: " + Math.round(containerInterval[0]) + "<br>");
   dbg.append("  - stop : " + Math.round(containerInterval[1]) + "<br>");
-
-  dbg.append("<br>");
-  dbg.append("<hr>");
-  dbg.append("Container Selected:" + "<br>");
-  containerSelected.forEach(function (elem, i) {
-    dbg.append("  - index: " + i + "  name: \"" + elem + "\"<br>");
-  });
 }
