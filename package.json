@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "CSS layout examples",
   "scripts": {
-      "start": "./node_modules/watch-spa-http-server/bin/http-server $(pwd)/src -a localhost -o"
+    "start": "./node_modules/watch-spa-http-server/bin/http-server $(pwd)/src -a localhost -o"
   },
   "repository": {
     "type": "git",

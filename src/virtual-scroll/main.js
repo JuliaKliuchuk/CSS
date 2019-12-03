@@ -1,6 +1,7 @@
 var vpHeight = 0; // viewport height
 var contentHeight = 0; // real scrollable height
 var scrollTop = 0;
+var scrollBottom = 0;
 var methodType = 0;
 var containerInterval = [0, 0];
 var containerSelected = [];
@@ -16,14 +17,14 @@ $(function () {
   content = $("#content");
   loadType = $("input[type=radio]");
 
+  // height of viewport
   vpHeight = Math.floor(viewport.css("height").replace('px', ''));
-  // contentHeight = content.css("height").replace('px', '');
+
+  // the number of all elements
   containerCount = $(".container").length;
 
   // Sum height of elements
-  contentHeight = $(".container").toArray().reduce(function (sum, elem) {
-    return sum + Number($(elem).css("height").replace('px', ''));
-  }, 0);
+  contentHeight = 5200;
 
   loadType.change(selectMetodLoadContent);
   loadType.trigger("change");
@@ -43,6 +44,25 @@ function selectMetodLoadContent() {
     viewport.unbind("mouseup");
     viewport.unbind("scroll");
 
+    // First method
+    if (methodType == 0) {
+
+      viewport.mouseup(function () {
+        // load first viewport
+
+        scrollTop = viewport.scrollTop();
+        // initializing interval for search containers
+        start = scrollTop;
+        stop = vpHeight + scrollTop;
+
+        getContainers_(start, stop);
+      });
+      // run now
+      viewport.trigger("mouseup");
+    }
+
+    // Second method
+
     // Loading the current viewport after positioning it
     if (methodType == 1) {
       viewport.mouseup(function () {
@@ -55,6 +75,8 @@ function selectMetodLoadContent() {
       });
       // run now
       viewport.trigger("mouseup");
+
+      // Third method
 
       // Anticipating viewport loading with a downward shift of the loading area by 1 viewport
     } else if (methodType == 2) {
@@ -88,10 +110,11 @@ function getContainers(start, stop) {
   containerInterval = [start, stop];
   $(".container").toArray().find(function (elem) {
     var elemH = Number($(elem).css("height").replace('px', ''));
+    // console.log(elemH);
     scrollH += elemH;
     // console.log(scrollH ,'>=', start)
     // console.log(scrollH ,'>=', stop)
-    // console.log(elem.id)
+    // console.log(elem.id);
     if (scrollH >= start) {
       result.push(elem);
       if (scrollH >= stop) {
@@ -100,6 +123,30 @@ function getContainers(start, stop) {
       }
     }
   });
+  logDebugInfo();
+}
+
+// Copi
+//
+function getContainers_(start, stop) {
+  console.log('getContainers_:', start, stop);
+  var scrollH = 0;
+  var result = [];
+  var countBlock = 1;
+  containerInterval = [start, stop];
+
+  $(".container").toArray().find(function (elem) {
+    // height of one element
+    scrollH += Number($(elem).css("height").replace('px', ''));
+    countBlock++;
+  });
+
+  console.log('countBlock:', countBlock, 'scrollH:', scrollH, 'scrollH < stop = ', scrollH, stop);
+  if (scrollH < stop) {
+    console.log('loadFile_');
+    loadFile_('page-' + countBlock, $("#content"), getContainers_.bind(null, start, stop));
+  }
+
   logDebugInfo();
 }
 
@@ -142,6 +189,35 @@ function loadFile(file, container) {
     error: function (xhr, status) {
       /* handle error here */
       $(container).html(status);
+    }
+  });
+}
+
+
+// Copi
+function loadFile_(file, container, cb) {
+  if (!file || !container) return;
+  const idBlock = '#' + file;
+
+  if ($(idBlock).length) return;
+
+  $(container).append('<div id="' + file + '" status="0"></div>');
+  const newContainer = $(idBlock);
+  console.log('newContainer:', newContainer);
+  $.ajax({
+    type: "get",
+    url: 'pages/' + file + '.html',
+    dataType: "html",
+    success: function (data) {
+      /* handle data here */
+      $(newContainer).append(data);
+      $(newContainer).attr("status", '1');
+      cb();
+      console.log(file);
+    },
+    error: function (xhr, status) {
+      /* handle error here */
+      console.log(status);
     }
   });
 }
