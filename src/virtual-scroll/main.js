@@ -1,6 +1,7 @@
 var vpHeight = 0; // viewport height
 var contentHeight = 0; // real scrollable height
 var scrollTop = 0;
+var methodType = 0;
 var containerInterval = [0, 0];
 var containerSelected = [];
 var scrollH = 0;
@@ -10,12 +11,13 @@ var stopLoad = false;
 /**
  * Init JQuery script
  * @constructor
- * @return {volid}
+ * @return {[type]} [description]
  */
 $(function () {
 
   viewport = $("#viewport");
   content = $("#content");
+  loadType = $("input[type=radio]");
 
   // height of veiwport
   vpHeight = viewport.height();
@@ -23,11 +25,11 @@ $(function () {
   loadType.change(selectMetodLoadContent);
   loadType.trigger("change");
 
-  selectMetodLoadContent();
 });
 
 /**
  * Select Metod Load Content
+ * @this $
  * @return {volid}
  */
 function selectMetodLoadContent() {
@@ -111,13 +113,11 @@ function getContainers(start, stop) {
 
 
 
-
 /**
  * Загрузить файл в контейнер
  * Load file to container
- * @param  {String}   file      name of file
- * @param  {Object}   container container element container
- * @param  {Function} cb
+ * @param  {String} file      name of file
+ * @param  {Object} container element container
  * @return {void}
  */
 function loadFile(file, container, cb) {
@@ -162,7 +162,6 @@ function loadFile(file, container, cb) {
   });
 
 }
-
 
 /**
  * Log Debug information
